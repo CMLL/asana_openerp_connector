@@ -43,5 +43,5 @@
         <menuitem name="Settings/Asana Connector/Connector" sequence="10" id="asana_connector_menu" action_id="asana_connect_action"/>
 
     </data>
-</record>
+</openerp>
 

@@ -13,7 +13,7 @@
  management module for your convenience.""",
  'depends':['base',
             'project'],
- 'init_xml':['asana_connector_view.xml'],
+ 'data':['asana_connector_view.xml'],
  'installable': True,
  'auto': False}
 

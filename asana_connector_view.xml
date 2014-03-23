@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="asana_connector_form_view">
+            <field name="name">asana.connector.form.view</field>
+            <field name="model">asana.connector</field>
+            <field name="arch" type="xml">
+                <form version="7.0" string="Asana Connector">
+                    <header>
+                            <field name="state" widget="statusbar" statusbar_visible="draft, connected"/>
+                    </header>
+                    <sheet>
+                        <group string="Connection parameters">
+                            <field name="name"/>
+                            <field name="api_key"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="asana_connect_tree_view">
+            <field name="name">asana.connector.tree.view</field>
+            <field name="model">asana.connector</field>
+            <field name="arch" type="xml">
+                <tree version="7.0" string="Asana Connector">
+                    <field name="name"/>
+                    <field name="api_key"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="asana_connect_action">
+            <field name="name">Asana Connector Action</field>
+            <field name="res_model">asana.connector</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem name="Settings/Asana Connector" sequence="10" id="asana_connector_main"/>
+        <menuitem name="Settings/Asana Connector/Connector" sequence="10" id="asana_connector_menu" action_id="asana_connect_action"/>
+
+    </data>
+</record>
+

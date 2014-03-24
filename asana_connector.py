@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields
+from asana import asana
 
 
 class AsanaConnector(orm.Model):
@@ -18,6 +19,14 @@ class AsanaConnector(orm.Model):
     _defaults = {
         'state': 'draft'
     }
+
+    def connect(self, cr, uid, id, context=None):
+        """Perform the connection between Openerp and Asana using
+        the api_key parameter."""
+        import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
+        user = self.browse(cr, uid, id, context)
+        connection = asana.AsanaAPI(user.api_key)
+        return True
 
 
 

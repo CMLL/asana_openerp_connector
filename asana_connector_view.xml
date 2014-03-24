@@ -9,6 +9,7 @@
                 <form version="7.0" string="Asana Connector">
                     <header>
                             <field name="state" widget="statusbar" statusbar_visible="draft, connected"/>
+                            <button name="connect" string="Connect" class="oe_highlight" type="object"/>
                     </header>
                     <sheet>
                         <group string="Connection parameters" col="4" colspan="1">

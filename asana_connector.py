@@ -1,8 +1,7 @@
 #-*- coding: utf-8 -*-
 
 from openerp.osv import orm, fields
-from asana import asana
-from asana.asana import AsanaException
+from asana.asana import AsanaException, AsanaAPI
 
 
 class AsanaConnector(orm.Model):
@@ -23,14 +22,14 @@ class AsanaConnector(orm.Model):
         'state': 'draft'
     }
 
-    def connect(self, cr, uid, id, context=None):
+    def connect(self, cr, uid, ids, context=None):
         """Perform the connection between Openerp and Asana using
         the api_key parameter."""
-        for user in self.browse(cr, uid, id, context):
-            connection = asana.AsanaAPI(user.api_key)
+        for user in self.browse(cr, uid, ids, context):
+            connection = AsanaAPI(user.api_key)
             try:
                 user_info = connection.user_info()
-                self.write(cr, uid, id, {'state': 'connected',
+                self.write(cr, uid, ids, {'state': 'connected',
                                         'email': user_info.get('email'),
                                         'asana_id': str(user_info.get('id')),
                                         'name': user_info.get('name')}, context)
@@ -38,8 +37,34 @@ class AsanaConnector(orm.Model):
             except AsanaException as e:
                 raise orm.except_orm('Error', e.message)
 
+    def sync_projects(self, cr, uid, ids, context=None):
+        """Sync the projects in Asana with the project.project model in Openerp.
 
+        Returns: [{project_id, project_name}]"""
+        res = []
+        for connection in self.browse(cr, uid, ids, context):
+            connect = AsanaAPI(connection.api_key)
+            asana_projects = connect.list_projects()
+            for project in asana_projects:
+                project_id = self.create_project(cr, uid, connection.id, connect, project.get('id'), context)
+                res.append(project_id)
+        return res
 
+    def create_project(self, cr, uid, id, connection, asana_project_id, context=None):
+        """Create the specified asana project to project.project model.
+
+        Args:
+            connection; AsanaAPI objecto to retrieve project info.
+            asana_project_id; id retrieved from list_projects
+
+        Returns; created project id."""
+        project_obj = self.pool.get('project.project')
+        project_details = connection.get_project(asana_project_id)
+        values = {'name': project_details.get('name'),
+                  'use_tasks': True,
+                  'privacy_visibility': 'employees'}
+        project_id = project_obj.create(cr, uid, values, context)
+        return project_id
 
 
 

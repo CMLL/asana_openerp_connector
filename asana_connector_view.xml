@@ -11,7 +11,7 @@
                             <field name="state" widget="statusbar" statusbar_visible="draft, connected"/>
                     </header>
                     <sheet>
-                        <group string="Connection parameters">
+                        <group string="Connection parameters" col="4" colspan="1">
                             <field name="name"/>
                             <field name="api_key"/>
                         </group>
@@ -32,15 +32,15 @@
         </record>
 
         <record model="ir.actions.act_window" id="asana_connect_action">
-            <field name="name">Asana Connector Action</field>
+            <field name="name">Asana Connector</field>
             <field name="res_model">asana.connector</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="target">current</field>
         </record>
 
-        <menuitem name="Settings/Asana Connector" sequence="10" id="asana_connector_main"/>
-        <menuitem name="Settings/Asana Connector/Connector" sequence="10" id="asana_connector_menu" action_id="asana_connect_action"/>
+        <menuitem name="Asana Connector" parent="base.menu_administration" sequence="1" id="asana_connector_main"/>
+        <menuitem name="Connector" sequence="1" id="asana_connector_menu" action="asana_connect_action" parent="asana_connector_main"/>
 
     </data>
 </openerp>

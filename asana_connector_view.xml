@@ -9,12 +9,14 @@
                 <form version="7.0" string="Asana Connector">
                     <header>
                             <field name="state" widget="statusbar" statusbar_visible="draft, connected"/>
-                            <button name="connect" string="Connect" class="oe_highlight" type="object"/>
+                            <button name="connect" string="Connect" class="oe_highlight" type="object" states="('draft')"/>
                     </header>
                     <sheet>
                         <group string="Connection parameters" col="4" colspan="1">
                             <field name="name"/>
                             <field name="api_key"/>
+                            <field name="email"/>
+                            <field name="asana_id"/>
                         </group>
                     </sheet>
                 </form>

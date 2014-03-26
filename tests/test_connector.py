@@ -40,7 +40,7 @@ class TestAsanaConnector(common.TransactionCase):
     def testConnectionState(self):
         """Check that if the connection is a succes the state of the object changes."""
         cr, uid = self.cr, self.uid
-        response = self.connector_obj.connect(cr, uid, self.connection_id)
+        self.connector_obj.connect(cr, uid, self.connection_id)
         for connector_state in self.connector_obj.browse(cr, uid, self.connection_id):
             self.assertEqual(connector_state.state, 'connected')
 
@@ -52,14 +52,14 @@ class TestAsanaConnector(common.TransactionCase):
     def testConnectionRetrievesUserInfoEmail(self):
         """Check that when connected the user email is retrieved."""
         cr, uid = self.cr, self.uid
-        response = self.connector_obj.connect(cr, uid, self.connection_id)
+        self.connector_obj.connect(cr, uid, self.connection_id)
         for connector_email in self.connector_obj.browse(cr, uid, self.connection_id):
             self.assertEqual(connector_email.email, self.testConnection.user_info().get('email'))
 
     def testConnectionRetrievesUserInfoId(self):
         """Check that when connected the user id is retrieved."""
         cr, uid = self.cr, self.uid
-        response = self.connector_obj.connect(cr, uid, self.connection_id)
+        self.connector_obj.connect(cr, uid, self.connection_id)
         for connector_id in self.connector_obj.browse(cr, uid, self.connection_id):
             #OpenERP Orm retrieves integer values as string, so parsing is required for test to pass.
             self.assertEqual(int(connector_id.asana_id), self.testConnection.user_info().get('id'))
@@ -67,7 +67,7 @@ class TestAsanaConnector(common.TransactionCase):
     def testConnectionRetrievesUserName(self):
         """Check that when connected the user name is retrieved."""
         cr, uid = self.cr, self.uid
-        response = self.connector_obj.connect(cr, uid, self.connection_id)
+        self.connector_obj.connect(cr, uid, self.connection_id)
         for connector_name in self.connector_obj.browse(cr, uid, self.connection_id):
          self.assertEqual(connector_name.name, self.testConnection.user_info().get('name'))
 
@@ -75,7 +75,7 @@ class TestAsanaConnector(common.TransactionCase):
         """Check for a succes project syncing."""
         cr, uid = self.cr, self.uid
         asana_projects = self.testConnection.list_projects()
-        projects = self.connector_obj.sync_projects(cr, uid, self.connection_id)
+        self.connector_obj.sync_projects(cr, uid, self.connection_id)
         for project in asana_projects:
             self.assertTrue(self.project_obj.search(cr, uid, [('name', '=', project.get('name'))]))
 
@@ -87,3 +87,12 @@ class TestAsanaConnector(common.TransactionCase):
         self.connector_obj.create_project(cr, uid, self.connection_id, self.testConnection, project_details.get('id'))
         openerp_project = self.project_obj.search(cr, uid, [('name', '=', project_details.get('name'))])
         self.assertTrue(openerp_project)
+
+    def testSyncTasks(self):
+    	"""Check for a succes task syncing for a certain proyect."""
+    	cr, uid = self.cr, self.uid
+    	asana_projects = self.testConnection.list_projects()
+    	project_tasks = self.testConnection.get_project_tasks(asana_projects[0].get('id'))
+    	openerp_project = self.project_obj.search(cr, uid, asana_projects[0].get('name'))
+
+

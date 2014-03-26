@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="asana_workspace_form_view">
+            <field name="name">asana.workspace.form.view</field>
+            <field name="model">asana.workspace</field>
+            <field name="arch" type="xml">
+                <form version="7.0" string="Workspace">
+                    <sheet>
+                        <group string="Info" col="4" colspan="1">
+                            <field name="name"/>
+                            <field name="asana_id"/>
+                            <field name="connector_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="asana_workspace_tree_view">
+            <field name="name">asana.workspace.tree.view</field>
+            <field name="model">asana.workspace</field>
+            <field name="arch" type="xml">
+                <tree version="7.0" string="Workspaces">
+                    <field name="name"/>
+                    <field name="asana_id"/>
+                    <field name="connector_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="asana_workspace_action">
+            <field name="name">Asana Workspaces</field>
+            <field name="res_model">asana.workspace</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem name="Workspaces" action="asana_workspace_action" parent="asana_connector_main" sequence="2" id="asana_workspace_menu"/>
+
+    </data>
+</openerp>

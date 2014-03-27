@@ -93,3 +93,28 @@ class AsanaConnector(orm.Model):
                 created_id = workspace_obj.create(cr, uid, values, context)
                 res.append(created_id)
         return res
+
+    def sync_tasks(self, cr, uid, connection, asana_project_id, openerp_project_id, context=None):
+        """Sync the tasks of an asana project with its openerp counterpart.
+
+        Args:
+            connection; AsanaAPI object to perform the  pull of data.
+            asana_project_id; the project to synchronize data of.
+            openerp_project_id; the project to relate the tasks.
+
+        Returns: [created_task_ids]
+        """
+        task_obj = self.pool.get('project.task')
+        res = []
+        asana_tasks = connection.get_project_tasks(asana_project_id)
+        for task in asana_tasks:
+            info = connection.get_task(task.get('id'))
+            values = {
+            'name': info.get('name'),
+            'description': "Task synced from Asana.",
+            'project_id': openerp_project_id
+            }
+            created_id = task_obj.create(cr, uid, values, context)
+            res.append(created_id)
+        return res
+

@@ -101,3 +101,20 @@ class TestAsanaConnector(common.TransactionCase):
         self.connector_obj.sync_workspaces(cr, uid, self.connection_id)
         for workspace in asana_workspaces:
             self.assertTrue(self.workspace_obj.search(cr, uid, [('name', '=', workspace.get('name'))]))
+
+    def testProjectTasks(self):
+        """Check for method that syncs all of a project tasks."""
+        cr, uid = self.cr, self.uid
+        #TODO Used second element 'cause i know that one has tasks.
+        asana_project = self.testConnection.list_projects()[1]
+        asana_tasks = []
+        for task in self.testConnection.get_project_tasks(asana_project.get('id')):
+            asana_tasks.append(task.get('name'))
+        openerp_project = self.project_obj.search(cr, uid, [('name', '=', asana_project.get('name'))])
+        task_ids = self.connector_obj.sync_tasks(cr, uid, self.testConnection,
+                                                 asana_project.get('id'),
+                                                 openerp_project)
+        for openerp_task in self.task_obj.browse(cr, uid, task_ids):
+            self.assertIn(openerp_task.name, asana_tasks)
+
+

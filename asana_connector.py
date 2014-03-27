@@ -56,6 +56,7 @@ class AsanaConnector(orm.Model):
             for project in asana_projects:
                 project_id = self.create_project(cr, uid, connection.id, connect, project.get('id'), context)
                 res.append(project_id)
+                tasks = self.sync_tasks(cr, uid, connection.id, project.get('id'), project_id)
         return res
 
     def create_project(self, cr, uid, id, connection, asana_project_id, context=None):
@@ -94,7 +95,7 @@ class AsanaConnector(orm.Model):
                 res.append(created_id)
         return res
 
-    def sync_tasks(self, cr, uid, connection, asana_project_id, openerp_project_id, context=None):
+    def sync_tasks(self, cr, uid, connection_id, asana_project_id, openerp_project_id, context=None):
         """Sync the tasks of an asana project with its openerp counterpart.
 
         Args:
@@ -105,6 +106,7 @@ class AsanaConnector(orm.Model):
         Returns: [created_task_ids]
         """
         task_obj = self.pool.get('project.task')
+        connection = AsanaAPI(self.browse(cr, uid, connection_id, context).api_key)
         res = []
         asana_tasks = connection.get_project_tasks(asana_project_id)
         for task in asana_tasks:

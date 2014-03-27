@@ -93,6 +93,13 @@ class TestAsanaConnector(common.TransactionCase):
         self.connector_obj.create_project(cr, uid, self.connection_id, self.testConnection, project_details.get('id'))
         openerp_project = self.project_obj.search(cr, uid, [('name', '=', project_details.get('name'))])
         self.assertTrue(openerp_project)
+        asana_tasks = self.testConnection.get_project_tasks(project_details.get('id'))
+        task_names = []
+        for task in asana_tasks:
+            task_names.append(task.get('name'))
+        openerp_tasks = self.task_obj.search(cr, uid, [('project_id', '=', openerp_project[0])])
+        for task in self.task_obj.browse(cr, uid, openerp_tasks):
+            self.assertIn(task.name, task_names)
 
     def testSyncWorkspaces(self):
         """Check for method that sync all workspaces."""
@@ -111,7 +118,7 @@ class TestAsanaConnector(common.TransactionCase):
         for task in self.testConnection.get_project_tasks(asana_project.get('id')):
             asana_tasks.append(task.get('name'))
         openerp_project = self.project_obj.search(cr, uid, [('name', '=', asana_project.get('name'))])
-        task_ids = self.connector_obj.sync_tasks(cr, uid, self.testConnection,
+        task_ids = self.connector_obj.sync_tasks(cr, uid, self.connection_id[0],
                                                  asana_project.get('id'),
                                                  openerp_project)
         for openerp_task in self.task_obj.browse(cr, uid, task_ids):

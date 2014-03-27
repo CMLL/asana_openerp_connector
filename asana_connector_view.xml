@@ -8,8 +8,10 @@
             <field name="arch" type="xml">
                 <form version="7.0" string="Asana Connector">
                     <header>
+                            <button name="connect" string="Connect" class="oe_highlight" type="object" attrs="{'invisible':[('state', '!=', 'draft')]}"/>
+                            <button name="sync_projects" class="oe_highlight" string="Sync Projects" type="object" attrs="{'invisible':[('state', '!=', 'connected')]}"/>
+                            <button name="sync_workspaces" class="oe_highlight" string="Sync Workspaces" type="object" attrs="{'invisible':[('state', '!=', 'connected')]}"/>
                             <field name="state" widget="statusbar" statusbar_visible="draft, connected"/>
-                            <button name="connect" string="Connect" class="oe_highlight" type="object" states="('draft')"/>
                     </header>
                     <sheet>
                         <group string="Connection parameters" col="4" colspan="1">

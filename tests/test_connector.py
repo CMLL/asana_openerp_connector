@@ -124,11 +124,10 @@ class TestAsanaConnector(common.TransactionCase):
         for openerp_task in self.task_obj.browse(cr, uid, task_ids):
             self.assertIn(openerp_task.name, asana_tasks)
 
-    def testNoConnection(self):
-        """This set of tests will fail if you have internet access
-        the internet. Is for testing that orm_exception is raised
-        whenever a connection is made no access is granted."""
+    def testRelateProjectsConnector(self):
+        """Check that connector relates projects
+        when synced."""
         cr, uid = self.cr, self.uid
-        #Encapsulate the conect object in a method.
-        self.assertRaises(orm.except_orm, self.connector_obj.make_connection,
-                          cr, uid, id)
+        self.connector_obj.sync_projects(cr, uid, self.connection_id)
+        for connector in self.connector_obj.browse(cr, uid, self.connection_id):
+            self.assertTrue(connector.synced_projects)

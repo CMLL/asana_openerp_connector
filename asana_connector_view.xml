@@ -20,6 +20,11 @@
                             <field name="email"/>
                             <field name="asana_id"/>
                         </group>
+                        <notebook>
+                            <page string="Projects">
+                                <field name="synced_projects"/>
+                            </page>
+                        </notebook>
                     </sheet>
                 </form>
             </field>

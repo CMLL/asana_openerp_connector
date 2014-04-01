@@ -27,7 +27,9 @@ class AsanaConnector(orm.Model):
         'email': fields.char('Email', size=32, help='Your Asana email',
                              readonly=True),
         'asana_id': fields.char('Asana Id', size=32, help='Your Asana user id',
-                                readonly=True)
+                                readonly=True),
+        'synced_projects': fields.one2many('project.project', 'connector_id',
+                                           'Synced Projects')
     }
 
     _defaults = {
@@ -74,14 +76,18 @@ class AsanaConnector(orm.Model):
         res = []
         for connection in self.browse(cr, uid, ids, context):
             logger.info("Performing project synchronization.")
-            connect = AsanaAPI(connection.api_key)
+            connect = self.make_connection(cr, uid, connection.id, context)
             asana_projects = connect.list_projects()
             for project in asana_projects:
-                project_id = self.create_project(cr, uid, connection.id, connect, project.get('id'), context)
+                project_id = self.create_project(cr, uid, connection.id,
+                                                 connect, project.get('id'),
+                                                 context)
                 logger.info("Created project {0}".format(project.get('name')))
                 res.append(project_id)
-                tasks = self.sync_tasks(cr, uid, connection.id, project.get('id'), project_id)
+                tasks = self.sync_tasks(cr, uid, connection.id,
+                                        project.get('id'), project_id)
                 logger.info("Created tasks related to project {0}".format(project.get('name')))
+            self.write(cr, uid, connection.id, {'synced_projects': [(6, 0, res)]})
         return res
 
     def create_project(self, cr, uid, id, connection, asana_project_id, context=None):
@@ -109,7 +115,7 @@ class AsanaConnector(orm.Model):
         workspace_obj = self.pool.get('asana.workspace')
         for connection in self.browse(cr, uid, ids, context):
             logger.info("Started workspace synchronization.")
-            connect = AsanaAPI(connection.api_key)
+            connect = self.make_connection(cr, uid, connection.id, context)
             asana_workspaces = connect.list_workspaces()
             for workspace in asana_workspaces:
                 values = {
@@ -133,7 +139,7 @@ class AsanaConnector(orm.Model):
         Returns: [created_task_ids]
         """
         task_obj = self.pool.get('project.task')
-        connection = AsanaAPI(self.browse(cr, uid, connection_id, context).api_key)
+        connection = self.make_connection(cr, uid, connection_id, context)
         res = []
         asana_tasks = connection.get_project_tasks(asana_project_id)
         for task in asana_tasks:

@@ -14,7 +14,8 @@
  'depends':['base',
             'project'],
  'data':['asana_connector_view.xml',
-         'asana_workspace_view.xml'],
+         'asana_workspace_view.xml',
+         'project_view.xml'],
  'installable': True,
  'auto': False}
 

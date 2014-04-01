@@ -3,6 +3,7 @@
 from openerp.osv import orm, fields
 from asana.asana import AsanaException, AsanaAPI
 from logging import getLogger
+from requests import ConnectionError
 
 logger = getLogger(__name__)
 
@@ -38,19 +39,33 @@ class AsanaConnector(orm.Model):
         the api_key parameter."""
         for user in self.browse(cr, uid, ids, context):
             logger.info("Attempting to connect to Asana.")
-            connection = AsanaAPI(user.api_key)
+            connection = self.make_connection(cr, uid, user.id)
             try:
                 user_info = connection.user_info()
-                self.write(cr, uid, ids, {'state': 'connected',
-                                          'email': user_info.get('email'),
-                                          'asana_id': str(user_info.get('id')),
-                                          'name': user_info.get('name')}, context)
+            except AsanaException, api_error:
+                logger.error(api_error.message)
+                raise orm.except_orm("Error", "Can't retrieve data. Correct api key?")
+            self.write(cr, uid, ids, {'state': 'connected',
+                                      'email': user_info.get('email'),
+                                      'asana_id': str(user_info.get('id')),
+                                      'name': user_info.get('name')}, context)
+            logger.info("Connection succes.")
+            return True
 
-                logger.info("Connection succes.")
-                return True
-            except AsanaException as e:
-                logger.error(e.message)
-                raise orm.except_orm('Error', e.message)
+    def make_connection(self, cr, uid, id, context=None):
+        """Try to connect and return the AsanaAPI object.
+
+        Returns:
+            AsanaAPI object.
+        """
+        api_key = self.browse(cr, uid, id, context).api_key
+        try:
+            connection = AsanaAPI(api_key)
+            return connection
+        except ConnectionError, conenction_error:
+            logger.error(conenction_error.message)
+            raise orm.except_orm("Error", "Can't connect to Asana. Internet?")
+
 
     def sync_projects(self, cr, uid, ids, context=None):
         """Sync the projects in Asana with the project.project model in Openerp.

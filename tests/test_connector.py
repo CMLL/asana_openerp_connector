@@ -120,7 +120,7 @@ class TestAsanaConnector(common.TransactionCase):
         openerp_project = self.project_obj.search(cr, uid, [('name', '=', asana_project.get('name'))])
         task_ids = self.connector_obj.sync_tasks(cr, uid, self.connection_id[0],
                                                  asana_project.get('id'),
-                                                 openerp_project)
+                                                 openerp_project[0])
         for openerp_task in self.task_obj.browse(cr, uid, task_ids):
             self.assertIn(openerp_task.name, asana_tasks)
 

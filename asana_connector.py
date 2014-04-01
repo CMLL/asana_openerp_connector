@@ -2,6 +2,9 @@
 
 from openerp.osv import orm, fields
 from asana.asana import AsanaException, AsanaAPI
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class AsanaConnector(orm.Model):
@@ -34,6 +37,7 @@ class AsanaConnector(orm.Model):
         """Perform the connection between Openerp and Asana using
         the api_key parameter."""
         for user in self.browse(cr, uid, ids, context):
+            logger.info("Attempting to connect to Asana.")
             connection = AsanaAPI(user.api_key)
             try:
                 user_info = connection.user_info()
@@ -41,8 +45,11 @@ class AsanaConnector(orm.Model):
                                           'email': user_info.get('email'),
                                           'asana_id': str(user_info.get('id')),
                                           'name': user_info.get('name')}, context)
+
+                logger.info("Connection succes.")
                 return True
             except AsanaException as e:
+                logger.error(e.message)
                 raise orm.except_orm('Error', e.message)
 
     def sync_projects(self, cr, uid, ids, context=None):
@@ -51,12 +58,15 @@ class AsanaConnector(orm.Model):
         Returns: [created_project_id]"""
         res = []
         for connection in self.browse(cr, uid, ids, context):
+            logger.info("Performing project synchronization.")
             connect = AsanaAPI(connection.api_key)
             asana_projects = connect.list_projects()
             for project in asana_projects:
                 project_id = self.create_project(cr, uid, connection.id, connect, project.get('id'), context)
+                logger.info("Created project {0}".format(project.get('name')))
                 res.append(project_id)
                 tasks = self.sync_tasks(cr, uid, connection.id, project.get('id'), project_id)
+                logger.info("Created tasks related to project {0}".format(project.get('name')))
         return res
 
     def create_project(self, cr, uid, id, connection, asana_project_id, context=None):
@@ -83,6 +93,7 @@ class AsanaConnector(orm.Model):
         res = []
         workspace_obj = self.pool.get('asana.workspace')
         for connection in self.browse(cr, uid, ids, context):
+            logger.info("Started workspace synchronization.")
             connect = AsanaAPI(connection.api_key)
             asana_workspaces = connect.list_workspaces()
             for workspace in asana_workspaces:
@@ -92,6 +103,7 @@ class AsanaConnector(orm.Model):
                     'connector_id': connection.id
                 }
                 created_id = workspace_obj.create(cr, uid, values, context)
+                logger.info("Created workspace {0}".format(workspace.get('name')))
                 res.append(created_id)
         return res
 
@@ -112,11 +124,11 @@ class AsanaConnector(orm.Model):
         for task in asana_tasks:
             info = connection.get_task(task.get('id'))
             values = {
-            'name': info.get('name'),
-            'description': "Task synced from Asana.",
-            'project_id': openerp_project_id
+                    'name': info.get('name'),
+                    'description': "Task synced from Asana.",
+                    'project_id': openerp_project_id
             }
             created_id = task_obj.create(cr, uid, values, context)
+            logger.info("Created task {0}".format(info.get('name')))
             res.append(created_id)
         return res
-

@@ -29,7 +29,9 @@ class AsanaConnector(orm.Model):
         'asana_id': fields.char('Asana Id', size=32, help='Your Asana user id',
                                 readonly=True),
         'synced_projects': fields.one2many('project.project', 'connector_id',
-                                           'Synced Projects')
+                                           'Synced Projects'),
+        'synced_workspaces': fields.one2many('asana.workspace', 'connector_id',
+                                             'Synced Workspaces')
     }
 
     _defaults = {
@@ -87,7 +89,6 @@ class AsanaConnector(orm.Model):
                 tasks = self.sync_tasks(cr, uid, connection.id,
                                         project.get('id'), project_id)
                 logger.info("Created tasks related to project {0}".format(project.get('name')))
-            self.write(cr, uid, connection.id, {'synced_projects': [(6, 0, res)]})
         return res
 
     def create_project(self, cr, uid, id, connection, asana_project_id, context=None):
@@ -102,7 +103,8 @@ class AsanaConnector(orm.Model):
         project_details = connection.get_project(asana_project_id)
         values = {'name': project_details.get('name'),
                   'use_tasks': True,
-                  'privacy_visibility': 'employees'}
+                  'privacy_visibility': 'employees',
+                  'connector_id': id}
         project_id = project_obj.create(cr, uid, values, context)
         return project_id
 

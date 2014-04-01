@@ -21,7 +21,8 @@
                             <field name="asana_id"/>
                         </group>
                         <notebook>
-                            <page string="Projects">
+                            <page string="Synced Elements">
+                                <field name="synced_workspaces"/>
                                 <field name="synced_projects"/>
                             </page>
                         </notebook>

@@ -1,10 +1,10 @@
-# DGII RNC Checker - OpenERP Module
+# Asana-OpenERP Connector
 ##Author: _Carlos Llamacho_
 ### Version: 0.1
 ###Description:
-Module that uses a sqlite3 database to check for RNC numbers registered in the DGII,
-and check Dominican Republic identification numbers against their algorithm to validate.
+Your company uses OpenERP internally to track projects but your secret love lies
+with Asana awesome project management? Worry not. With this module you can keep
+all your projects, tasks and workspaces synced.
 ### Category: _Project_
 ###Depends:
 1. base
-2. project
